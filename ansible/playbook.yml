@@ -1,0 +1,127 @@
+---
+- name: Automatitzacio Configuracio
+  hosts: all
+  become: yes
+
+  tasks:
+    #Actualització i configuració sistema
+    - name: Actualitzar sistema
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Definir zona horaria
+      timezone:
+        name: "Europe/Madrid"
+
+
+    #Usuaris i Grup
+    - name: Crear grup asix
+      group:
+        name: "asix"
+        state: present
+
+    - name: Crear usuari Dani
+      user:
+        name: "dani"
+        group: "asix"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+
+    - name: Crear usuari Lluc
+      user:
+        name: "lluc"
+        group: "asix"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+
+    - name: Crear usuari convidat
+      user:
+        name: "convidat"
+        shell: /bin/bash
+        append: yes
+
+
+    #Gestió Configuració
+    - name: Missatge del dia amb Jinja2
+      template:
+        src: plantilla.j2
+        dest: /etc/motd
+
+    - name: Cron Manteniment
+      cron:
+        name: "Neteja semanal tmp"
+        weekday: "0"
+        hour: "12"
+        minute: "00"
+        job: "rm -rf /tmp/*"
+
+
+    #Desplegament Aplicacions
+    - name: Instal·lar Suricata (IDS/IPS)
+      apt:
+        name: suricata
+        state: present
+
+    - name: Instal·lar Zabbix (Monitorització de Xarxa)
+      apt:
+        name: zabbix-agent
+        state: present
+
+    - name: Activar Suricata
+      service:
+        name: suricata
+        state: started
+        enabled: yes
+
+    - name: Activar Zabbix
+      service:
+        name: zabbix-agent
+        state: started
+        enabled: yes
+
+    - name: Instal·lar Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Activar Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+
+    #Seguretat
+    - name: Obrir port 22 (SSH)
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+
+    - name: Obrir port 8080 (Docker)
+      ufw:
+        rule: allow
+        port: 8080
+        proto: tcp
+
+    - name: Activar Firewall i Denegar tot
+      ufw:
+        state: enabled
+        policy: deny
+
+    - name: Desactivar Login Root per SSH
+      lineinfile:
+        path: /et/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin prohibit-password'
+      notify: Reiniciar SSH
+
+
+  handlers:
+    - name: Reiniciar SSH
+      service:
+        name: ssh
+        state: restarted
