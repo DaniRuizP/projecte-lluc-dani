@@ -1,5 +1,5 @@
 ---
-- name: Automatitzacio Configuracio
+- name: Automatització Configuració
   hosts: all
   become: yes
 
@@ -16,7 +16,7 @@
 
 
     #Usuaris i Grup
-    - name: Crear grup asix
+    - name: Crear grup Asix
       group:
         name: "asix"
         state: present
@@ -41,7 +41,6 @@
       user:
         name: "convidat"
         shell: /bin/bash
-        append: yes
 
 
     #Gestió Configuració
@@ -54,7 +53,7 @@
       cron:
         name: "Neteja semanal tmp"
         weekday: "0"
-        hour: "12"
+        hour: "01"
         minute: "00"
         job: "rm -rf /tmp/*"
 
@@ -65,20 +64,31 @@
         name: suricata
         state: present
 
-    - name: Instal·lar Zabbix (Monitorització de Xarxa)
-      apt:
-        name: zabbix-agent
-        state: present
-
     - name: Activar Suricata
       service:
         name: suricata
         state: started
         enabled: yes
 
+    - name: Afegir repositori de Zabbix
+      apt:
+        deb: "https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu22.04_all.deb"
+
+    - name: Instal·lar Zabbix (Monitorització de Xarxa)
+      apt:
+        name:
+          - zabbix-server-pgsql
+          - zabbix-frontend-php
+          - php-pgsql
+          - zabbix-apache-conf
+          - zabbix-sql-scripts
+          - zabbix-agent2
+        state: present
+        update_cache: yes
+
     - name: Activar Zabbix
       service:
-        name: zabbix-agent
+        name: zabbix-agent2
         state: started
         enabled: yes
 
@@ -114,7 +124,7 @@
 
     - name: Desactivar Login Root per SSH
       lineinfile:
-        path: /et/ssh/sshd_config
+        path: /etc/ssh/sshd_config
         regexp: '^#?PermitRootLogin'
         line: 'PermitRootLogin prohibit-password'
       notify: Reiniciar SSH
