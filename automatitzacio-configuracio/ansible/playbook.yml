@@ -61,8 +61,19 @@
     #Desplegament Aplicacions
     - name: Instal·lar Suricata (IDS/IPS)
       apt:
-        name: suricata
+        name:
+        - suricata
+        - suricata-update
         state: present
+
+    - name: Configurar Interficie de Xarxa
+      replace:
+        path: /etc/suricata/suricata.yaml
+        regexp: 'interface: eth0'
+        replace: 'interface: enp0s8'
+
+    - name: Actualitzar Regles Suricata
+      command: suricata-update
 
     - name: Activar Suricata
       service:
