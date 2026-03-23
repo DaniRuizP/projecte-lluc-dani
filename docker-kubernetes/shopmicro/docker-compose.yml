@@ -1,0 +1,143 @@
+services:
+  shop-db:
+    image: mysql:9.6
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - shop_db_data:/var/lib/mysql
+      - ./db-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  cache:
+    image: redis:8.6.1-alpine
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  message-queue:
+    image: rabbitmq:4.2.5-management-alpine
+    ports:
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    networks:
+      - frontend-net
+    restart: unless-stopped
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - frontend-net
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - frontend
+      - product-service
+      - order-service
+      - user-service
+    restart: unless-stopped
+
+  product-service:
+    build: ./product-service
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+    networks:
+      - backend-net
+      - frontend-net
+    depends_on:
+      shop-db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    restart: unless-stopped
+
+  order-service:
+    build: ./order-service
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+      - RMQ_HOST=${RMQ_HOST}
+    networks:
+      - backend-net
+      - frontend-net
+    depends_on:
+      shop-db:
+        condition: service_healthy
+      message-queue:
+        condition: service_healthy
+    restart: unless-stopped
+
+  user-service:
+    build: ./user-service
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+    networks:
+      - backend-net
+      - frontend-net
+    depends_on:
+      shop-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  notification-service:
+    build: ./notification-service
+    environment:
+      - RMQ_HOST=${RMQ_HOST}
+    networks:
+      - backend-net
+      - frontend-net
+    depends_on:
+      message-queue:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  shop_db_data:
+  rabbitmq_data:
+
+networks:
+  frontend-net:
+    driver: bridge
+  backend-net:
+    driver: bridge
+
