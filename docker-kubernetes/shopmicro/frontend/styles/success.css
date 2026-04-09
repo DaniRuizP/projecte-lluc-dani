@@ -1,0 +1,194 @@
+/* 
+    Lluc Sánchez - 2n ASIX - Projecte Lluc/Dani
+    Tots els estils han sigut generats amb Claude Code per un millor resultat visual de la web.
+*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.success-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+.success-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 20px;
+    text-align: center;
+    color: white;
+}
+
+.success-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+.success-header p {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.success-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    display: block;
+    animation: popIn 0.6s ease-out forwards;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    80% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.success-body {
+    padding: 40px 30px;
+    background: white;
+}
+
+.success-body p {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.success-body b {
+    color: #333;
+    font-weight: 600;
+}
+
+.total-amount {
+    font-size: 24px;
+    font-weight: 700;
+    color: #667eea;
+    margin: 25px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    border: 2px dashed #667eea;
+}
+
+.notification-info {
+    font-size: 13px;
+    color: #999;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.notification-info i {
+    color: #667eea;
+    margin-right: 8px;
+}
+
+.success-footer {
+    padding: 20px 30px;
+    background: #f9f9f9;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    width: 100%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-success:active {
+    transform: translateY(0);
+}
+
+.btn-success i {
+    margin-right: 8px;
+}
+
+@media (max-width: 576px) {
+    .success-container {
+        max-width: 100%;
+    }
+
+    .success-header {
+        padding: 30px 20px;
+    }
+
+    .success-header h2 {
+        font-size: 24px;
+    }
+
+    .success-body {
+        padding: 30px 20px;
+    }
+
+    .total-amount {
+        font-size: 20px;
+    }
+
+    .success-footer {
+        padding: 15px 20px;
+    }
+}

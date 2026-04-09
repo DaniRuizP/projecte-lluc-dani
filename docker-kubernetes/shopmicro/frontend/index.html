@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>🛒 ShopMicro V2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <h1 class="text-center mb-4">🛒 ShopMicro (Carret i Usuaris)</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4 offset-md-4">
+            <select id="user-select" class="form-select border-primary shadow-sm">
+                <option value="">👤 Selecciona un usuari...</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Llista de Productes -->
+        <div class="col-md-8">
+            <h3>Catàleg de Productes</h3>
+            <div id="status-banner" class="alert alert-info py-1" style="display:none; font-size: 0.9em;"></div>
+            <div class="row" id="product-list"></div>
+        </div>
+        
+        <!-- Carret de la Compra -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white"><h5>🛍️ El teu carret</h5></div>
+                <div class="card-body">
+                    <ul id="cart-items" class="list-group mb-3"></ul>
+                    <h4 class="text-end">Total: <span id="cart-total">0.00</span> €</h4>
+                    <button class="btn btn-success w-100 mt-2" onclick="checkout()">💳 Finalitzar Compra</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let cart =[];
+
+    async function loadUsers() {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        let html = '<option value="">👤 Selecciona un usuari...</option>';
+        users.forEach(u => html += `<option value="${u.id}">${u.username}</option>`);
+        document.getElementById('user-select').innerHTML = html;
+    }
+
+    async function loadProducts() {
+        const response = await fetch('/api/products');
+        const res = await response.json();
+        
+        const banner = document.getElementById('status-banner');
+        banner.style.display = 'block';
+        banner.className = res.source === 'REDIS' ? 'alert alert-success' : 'alert alert-warning';
+        banner.innerHTML = `Origen de dades: <b>${res.source}</b>`;
+
+        let html = '';
+        res.data.forEach(p => {
+            html += `
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">${p.name}</h5>
+                        <p class="card-text fs-5">${p.price} €</p>
+                        <p class="text-muted small">Estoc: ${p.stock}</p>
+                        <button class="btn btn-outline-primary btn-sm w-100" onclick="addToCart(${p.id}, '${p.name}', ${p.price})" ${p.stock <= 0 ? 'disabled' : ''}>
+                            ${p.stock <= 0 ? 'Esgotat' : '🛒 Afegir al carret'}
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        });
+        document.getElementById('product-list').innerHTML = html;
+    }
+
+    function addToCart(id, name, price) {
+        cart.push({id, name, price});
+        renderCart();
+    }
+
+    function renderCart() {
+        let html = '';
+        let total = 0;
+        cart.forEach((item, index) => {
+            html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${item.name} 
+                        <span>${item.price} € <button class="btn btn-sm btn-danger py-0 px-1" onclick="cart.splice(${index},1);renderCart()">x</button></span>
+                     </li>`;
+            total += item.price;
+        });
+        document.getElementById('cart-items').innerHTML = html;
+        document.getElementById('cart-total').innerText = total.toFixed(2);
+    }
+
+    async function checkout() {
+        const userId = document.getElementById('user-select').value;
+        if(!userId) return alert('⚠️ Si us plau, selecciona un usuari primer!');
+        if(cart.length === 0) return alert('⚠️ El carret està buit!');
+
+        const productIds = cart.map(i => i.id);
+        
+        const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({user_id: userId, products: productIds})
+        });
+        const res = await response.json();
+        
+        if(res.status === 'OK') {
+            alert(`✅ Compra realitzada!\n\n${res.message}`);
+            cart =[];
+            renderCart();
+            loadProducts();
+        } else {
+            alert('❌ Error: ' + res.message);
+        }
+    }
+
+    loadUsers();
+    loadProducts();
+</script>
+</body>
+</html>
