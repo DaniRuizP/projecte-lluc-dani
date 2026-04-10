@@ -66,6 +66,7 @@ services:
     image: lsanchez5420/shopmicro-frontend:v1
     networks:
       - frontend-net
+      - api-net
     deploy:
       replicas: 2
       update_config:
