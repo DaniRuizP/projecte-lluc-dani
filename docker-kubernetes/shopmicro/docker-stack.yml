@@ -1,0 +1,208 @@
+services:
+  shop-db:
+    image: mysql:9.6
+    environment:
+      MYSQL_ROOT_PASSWORD: /run/secrets/db_root_password
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: /run/secrets/db_password
+    secrets:
+      - db_root_password
+      - db_password
+    volumes:
+      - shop_db_data:/var/lib/mysql
+      - /opt/shopmicro/db-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "sh", "-c", "mysqladmin ping -h localhost -u root -p$$(cat /run/secrets/db_root_password)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+
+  cache:
+    image: redis:8.6.1-alpine
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+
+  message-queue:
+    image: rabbitmq:4.2.5-management-alpine
+    ports:
+      - target: 15672
+        published: 15672
+        protocol: tcp
+        mode: ingress
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+
+  frontend:
+    image: lsanchez5420/shopmicro-frontend:v1
+    networks:
+      - frontend-net
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  api-gateway:
+    image: lsanchez5420/shopmicro-api-gateway:v1
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: ingress
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: ingress
+    networks:
+      - frontend-net
+      - api-net
+    volumes:
+      - nginx_logs:/var/log/nginx 
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  product-service:
+    image: lsanchez5420/shopmicro-product-service:v2
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      # - DB_PASSWORD=/run/secrets/db_password
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+    secrets:                   
+      - db_password
+    networks:
+      - backend-net
+      - api-net
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  order-service:
+    image: lsanchez5420/shopmicro-order-service:v2
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      # - DB_PASSWORD=/run/secrets/db_password
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+      - RMQ_HOST=${RMQ_HOST}
+    secrets:                   
+      - db_password
+    networks:
+      - backend-net
+      - api-net
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  user-service:
+    image: lsanchez5420/shopmicro-user-service:v2
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+     #  - DB_PASSWORD=/run/secrets/db_password
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+    secrets:                   
+      - db_password
+    networks:
+      - backend-net
+      - api-net
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  notification-service:
+    image: lsanchez5420/shopmicro-notification-service:v1
+    environment:
+      - RMQ_HOST=${RMQ_HOST}
+    networks:
+      - backend-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+secrets:
+  db_root_password:
+    external: true
+  db_password:
+    external: true
+
+volumes:
+  shop_db_data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=10.0.30.10,nfsvers=4,rw"
+      device: ":/mnt/pool-principal/docker-volumes/shop_db_data"
+  rabbitmq_data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=10.0.30.10,nfsvers=4,rw"
+      device: ":/mnt/pool-principal/docker-volumes/rabbitmq_data"
+  nginx_logs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=10.0.30.10,nfsvers=4,rw"
+      device: ":/mnt/pool-principal/docker-volumes/nginx_logs"
+
+networks:
+  frontend-net:
+    driver: overlay
+  api-net:
+    driver: overlay
+  backend-net:
+    driver: overlay
