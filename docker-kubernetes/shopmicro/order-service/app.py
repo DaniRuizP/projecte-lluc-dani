@@ -14,10 +14,17 @@ app = Flask(__name__)
 # Variables d'entorn (arxiu .env)
 DB_HOST = os.environ.get('DB_HOST')
 DB_USER = os.environ.get('DB_USER')
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_NAME = os.environ.get('DB_NAME')
 REDIS_HOST = os.environ.get('REDIS_HOST')
 RMQ_HOST = os.environ.get('RMQ_HOST')
+
+# si existeix l'arxiu xifrat de Docker Secrets
+if os.path.exists('/run/secrets/db_password'):
+    with open('/run/secrets/db_password', 'r') as secret_file:
+        DB_PASSWORD = secret_file.read().strip()
+else:
+    # Si no estem a Swarm, usem la variable d'entorn .env
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
 
 # Connexió amb Redis per la cache
 cache = redis.Redis(host=REDIS_HOST, port=6379, decode_responses=True)

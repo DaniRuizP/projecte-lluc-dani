@@ -18,9 +18,16 @@ app.config['JSON_AS_ASCII'] = False
 # Variables d'entorn (arxiu .env)
 DB_HOST = os.environ.get('DB_HOST')
 DB_USER = os.environ.get('DB_USER')
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_NAME = os.environ.get('DB_NAME')
 REDIS_HOST = os.environ.get('REDIS_HOST')
+
+# si existeix l'arxiu xifrat de Docker Secrets
+if os.path.exists('/run/secrets/db_password'):
+    with open('/run/secrets/db_password', 'r') as secret_file:
+        DB_PASSWORD = secret_file.read().strip()
+else:
+    # Si no estem a Swarm, usem la variable d'entorn .env
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
 
 # Funció per obtenir connexió amb la BBDD.
 def get_db():
