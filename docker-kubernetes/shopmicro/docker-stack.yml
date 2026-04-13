@@ -42,11 +42,11 @@ services:
 
   message-queue:
     image: rabbitmq:4.2.5-management-alpine
-    ports:
-      - target: 15672
-        published: 15672
-        protocol: tcp
-        mode: ingress
+#    ports:
+#      - target: 15672
+#        published: 15672
+#        protocol: tcp
+#        mode: ingress
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
