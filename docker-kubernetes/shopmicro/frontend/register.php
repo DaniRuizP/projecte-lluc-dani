@@ -4,9 +4,12 @@ if(isset($_SESSION['user_id'])) { header('Location: index.php'); exit; }
 $msg = ''; $type = '';
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_encode(['username' => $_POST['username'], 'password' => $_POST['password']]);
-    $options = ['http' =>['header' => "Content-type: application/json\r\n", 'method' => 'POST', 'content' => $data]];
+    $options =[
+        'http' =>['header' => "Content-type: application/json\r\n", 'method' => 'POST', 'content' => $data],
+        'ssl' =>['verify_peer' => false, 'verify_peer_name' => false]
+    ];
     $context  = stream_context_create($options);
-    $result = @file_get_contents('http://user-service:5003/users/register', false, $context);
+    $result = @file_get_contents('http://api-gateway:8080/api/users/register', false, $context);
     if($result) {
         $res = json_decode($result, true);
         $msg = $res['message'];
