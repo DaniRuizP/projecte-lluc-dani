@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose_v2.yml --namespace shopmicro3
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: order-service
+  name: order-service
+  namespace: shopmicro3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: order-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose_v2.yml --namespace shopmicro3
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        io.kompose.service: order-service
+    spec:
+      containers:
+        - env:
+            - name: DB_HOST
+            - name: DB_NAME
+            - name: DB_PASSWORD
+            - name: DB_USER
+            - name: REDIS_HOST
+            - name: RMQ_HOST
+          image: lsanchez5420/shopmicro-order-service:v2
+          name: order-service
+      restartPolicy: Always

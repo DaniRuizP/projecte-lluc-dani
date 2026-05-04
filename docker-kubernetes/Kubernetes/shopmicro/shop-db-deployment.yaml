@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose_v2.yml --namespace shopmicro3
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: shop-db
+  name: shop-db
+  namespace: shopmicro3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: shop-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose_v2.yml --namespace shopmicro3
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        io.kompose.service: shop-db
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+            - name: MYSQL_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_USER
+          image: mysql:9.6
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -p$MYSQL_ROOT_PASSWORD
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: shop-db
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: shop-db-data
+            - mountPath: /docker-entrypoint-initdb.d/init.sql
+              name: shop-db-claim1
+      restartPolicy: Always
+      volumes:
+        - name: shop-db-data
+          persistentVolumeClaim:
+            claimName: shop-db-data
+        - name: shop-db-claim1
+          persistentVolumeClaim:
+            claimName: shop-db-claim1

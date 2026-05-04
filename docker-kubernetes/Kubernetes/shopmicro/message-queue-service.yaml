@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose_v2.yml --namespace shopmicro3
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: message-queue
+  name: message-queue
+  namespace: shopmicro3
+spec:
+  ports:
+    - name: "15672"
+      port: 15672
+      targetPort: 15672
+  selector:
+    io.kompose.service: message-queue
