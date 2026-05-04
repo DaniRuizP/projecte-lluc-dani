@@ -24,7 +24,7 @@ spec:
         io.kompose.service: api-gateway
     spec:
       containers:
-        - image: lsanchez5420/shopmicro-api-gateway:v1
+        - image: lsanchez5420/shopmicro-api-gateway:kubernetes
           name: api-gateway
           ports:
             - containerPort: 80

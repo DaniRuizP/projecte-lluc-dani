@@ -23,11 +23,31 @@ spec:
     spec:
       containers:
         - env:
-            - name: DB_HOST
-            - name: DB_NAME
-            - name: DB_PASSWORD
-            - name: DB_USER
-            - name: REDIS_HOST
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: service-config
+                key: DB_HOST
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: service-config
+                key: DB_NAME
+          - name: DB_USER
+            valueFrom:
+              configMapKeyRef:
+                name: service-config
+                key: DB_USER
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: shop-db-secret
+                key: MYSQL_PASSWORD
+          - name: REDIS_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: service-config
+                key: REDIS_HOST
           image: lsanchez5420/shopmicro-product-service:v2
           name: product-service
       restartPolicy: Always
