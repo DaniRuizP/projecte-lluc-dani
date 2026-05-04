@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: shopmicro3
+data:
+  nginx.conf: |
+    # Configuración NGINX basada en la original de Swarm, adaptada para Kubernetes
+
+    # Servidor HTTP (Redirección a HTTPS)
+    server {
+        listen 80;
+        server_name _;
+        return 301 https://$host$request_uri;
+    }
+
+    # Servidor HTTPS - Proxy inverso con certificado encriptado
+    server {
+        listen 443 ssl;
+        server_name _;
+
+        # Rutas certificados SSL/TLS para HTTPS
+        ssl_certificate /etc/nginx/ssl/server.crt;
+        ssl_certificate_key /etc/nginx/ssl/server.key;
+
+        # Configuración de protocolos SSL/TLS seguros
+        ssl_protocols TLSv1.2 TLSv1.3;
+        # Utilizar cifrado fuerte y desactivar los débiles
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        # Codificación de caracteres para UTF-8
+        charset utf-8;
+
+        # Resolver DNS de Kubernetes - NECESARIO para resolver nombres internos
+        resolver 10.43.0.10 valid=10s;
+        resolver_timeout 5s;
+
+        # Variables para resolver dinámicamente (en tiempo de ejecución)
+        set $frontend "frontend.shopmicro2.svc.cluster.local:80";
+        set $product "product-service.shopmicro2.svc.cluster.local:5001";
+        set $order "order-service.shopmicro2.svc.cluster.local:5002";
+        set $user "user-service.shopmicro2.svc.cluster.local:5003";
+
+        # Enrutamiento de peticiones a cada servicio
+
+        # Ruta raíz - Sirve el frontend estático
+        location / { proxy_pass http://$frontend; }
+        
+        # Ruta API de productos - Permite tanto /api/products como /api/products/123
+        location ~ ^/api/products(/.*)?$ { proxy_pass http://$product/products$1; }
+        
+        # Ruta API de comandas - Permite tanto /api/orders como /api/orders/123
+        location ~ ^/api/orders(/.*)?$ { proxy_pass http://$order/orders$1; }
+
+        # Ruta API de usuarios - Permite tanto /api/users como /api/users/login
+        location ~ ^/api/users(/.*)?$ { proxy_pass http://$user/users$1; }
+    }

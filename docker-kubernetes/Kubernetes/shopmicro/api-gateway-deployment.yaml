@@ -34,8 +34,18 @@ spec:
           volumeMounts:
             - mountPath: /var/log/nginx
               name: nginx-logs
+            - mountPath: /etc/nginx/conf.d/shopmicro.conf
+              name: nginx-config
+              subPath: nginx.conf
       restartPolicy: Always
       volumes:
         - name: nginx-logs
           persistentVolumeClaim:
             claimName: nginx-logs
+        - name: nginx-config
+          configMap:
+            name: api-gateway-config
+            defaultMode: 0777
+            items:
+              - key: nginx.conf
+                path: nginx.conf

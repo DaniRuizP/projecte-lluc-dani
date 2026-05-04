@@ -48,12 +48,13 @@ spec:
             - mountPath: /var/lib/mysql
               name: shop-db-data
             - mountPath: /docker-entrypoint-initdb.d/init.sql
-              name: shop-db-claim1
+              name: db-init-script
+              subPath: init.sql
       restartPolicy: Always
       volumes:
         - name: shop-db-data
           persistentVolumeClaim:
             claimName: shop-db-data
-        - name: shop-db-claim1
-          persistentVolumeClaim:
-            claimName: shop-db-claim1
+        - name: db-init-script
+          configMap:
+            name: db-init-script

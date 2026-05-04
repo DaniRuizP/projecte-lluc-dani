@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-config
+  namespace: shopmicro3
+data:
+  DB_HOST: "shop-db.shopmicro2.svc.cluster.local"
+  DB_NAME: "shop_db"
+  DB_USER: "shopmicro-adm"
+  REDIS_HOST: "cache.shopmicro2.svc.cluster.local"
+  RMQ_HOST: "message-queue.shopmicro2.svc.cluster.local"
