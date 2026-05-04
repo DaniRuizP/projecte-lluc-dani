@@ -9,7 +9,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         'ssl' =>['verify_peer' => false, 'verify_peer_name' => false]
     ];
     $context  = stream_context_create($options);
-    $result = @file_get_contents('https://api-gateway.shopmicro2.svc.cluster.local/api/users/register', false, $context);
+    $result = @file_get_contents('https://api-gateway.shopmicro3.svc.cluster.local/api/users/register', false, $context);
     if($result) {
         $res = json_decode($result, true);
         $msg = $res['message'];

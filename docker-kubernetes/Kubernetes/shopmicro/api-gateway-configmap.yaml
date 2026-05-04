@@ -37,10 +37,10 @@ data:
         resolver_timeout 5s;
 
         # Variables per resoldre dinàmicament (en temps d'execució)
-        set $frontend "frontend.shopmicro2.svc.cluster.local:80";
-        set $product "product-service.shopmicro2.svc.cluster.local:5001";
-        set $order "order-service.shopmicro2.svc.cluster.local:5002";
-        set $user "user-service.shopmicro2.svc.cluster.local:5003";
+        set $frontend "frontend.shopmicro3.svc.cluster.local:80";
+        set $product "product-service.shopmicro3.svc.cluster.local:5001";
+        set $order "order-service.shopmicro3.svc.cluster.local:5002";
+        set $user "user-service.shopmicro3.svc.cluster.local:5003";
 
         # Enrutament de peticions a cada servei
 
