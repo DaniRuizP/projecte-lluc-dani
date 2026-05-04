@@ -25,10 +25,26 @@ spec:
     spec:
       containers:
         - env:
-            - name: MYSQL_DATABASE
-            - name: MYSQL_PASSWORD
             - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db-secret
+                  key: MYSQL_DATABASE
             - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db-secret
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db-secret
+                  key: MYSQL_PASSWORD
           image: mysql:9.6
           livenessProbe:
             exec:
