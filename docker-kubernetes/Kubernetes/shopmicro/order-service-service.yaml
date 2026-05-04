@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: order-service
-  namespace: shopmicro2
+  namespace: shopmicro3
 spec:
   selector:
     io.kompose.service: order-service
