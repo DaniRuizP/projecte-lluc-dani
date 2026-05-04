@@ -5,53 +5,54 @@ metadata:
   namespace: shopmicro3
 data:
   nginx.conf: |
-    # Configuración NGINX basada en la original de Swarm, adaptada para Kubernetes
+    # Configuració d'NGINX basada en l'original de Swarm, adaptada per a Kubernetes
+    # Projecte LlucDani - ASIX 2 - 2026
 
-    # Servidor HTTP (Redirección a HTTPS)
+    # Servidor HTTP (Redirecció a HTTPS)
     server {
         listen 80;
         server_name _;
         return 301 https://$host$request_uri;
     }
 
-    # Servidor HTTPS - Proxy inverso con certificado encriptado
+    # Servidor HTTPS - Proxy invers amb certificat encriptat
     server {
         listen 443 ssl;
         server_name _;
 
-        # Rutas certificados SSL/TLS para HTTPS
+        # Rutes dels certificats SSL/TLS per a HTTPS
         ssl_certificate /etc/nginx/ssl/server.crt;
         ssl_certificate_key /etc/nginx/ssl/server.key;
 
-        # Configuración de protocolos SSL/TLS seguros
+        # Configuració de protocols SSL/TLS segurs
         ssl_protocols TLSv1.2 TLSv1.3;
-        # Utilizar cifrado fuerte y desactivar los débiles
+        # Utilitzar xifratge fort i desactivar els febles
         ssl_ciphers HIGH:!aNULL:!MD5;
 
-        # Codificación de caracteres para UTF-8
+        # Codificació de caràcters per a UTF-8
         charset utf-8;
 
-        # Resolver DNS de Kubernetes - NECESARIO para resolver nombres internos
+        # Resolver DNS de Kubernetes - NECESSARI per resoldre noms interns
         resolver 10.43.0.10 valid=10s;
         resolver_timeout 5s;
 
-        # Variables para resolver dinámicamente (en tiempo de ejecución)
+        # Variables per resoldre dinàmicament (en temps d'execució)
         set $frontend "frontend.shopmicro2.svc.cluster.local:80";
         set $product "product-service.shopmicro2.svc.cluster.local:5001";
         set $order "order-service.shopmicro2.svc.cluster.local:5002";
         set $user "user-service.shopmicro2.svc.cluster.local:5003";
 
-        # Enrutamiento de peticiones a cada servicio
+        # Enrutament de peticions a cada servei
 
-        # Ruta raíz - Sirve el frontend estático
+        # Ruta arrel - Serveix el frontend estàtic
         location / { proxy_pass http://$frontend; }
         
-        # Ruta API de productos - Permite tanto /api/products como /api/products/123
+        # Ruta API de productes - Permet tant /api/products com /api/products/123
         location ~ ^/api/products(/.*)?$ { proxy_pass http://$product/products$1; }
         
-        # Ruta API de comandas - Permite tanto /api/orders como /api/orders/123
+        # Ruta API de comandes - Permet tant /api/orders com /api/orders/123
         location ~ ^/api/orders(/.*)?$ { proxy_pass http://$order/orders$1; }
 
-        # Ruta API de usuarios - Permite tanto /api/users como /api/users/login
+        # Ruta API d'usuaris - Permet tant /api/users com /api/users/login
         location ~ ^/api/users(/.*)?$ { proxy_pass http://$user/users$1; }
     }
