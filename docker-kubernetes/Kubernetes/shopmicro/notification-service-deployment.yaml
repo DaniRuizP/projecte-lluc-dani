@@ -24,6 +24,10 @@ spec:
       containers:
         - env:
             - name: RMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: service-config
+                  key: RMQ_HOST
           image: lsanchez5420/shopmicro-notification-service:v1
           name: notification-service
       restartPolicy: Always
