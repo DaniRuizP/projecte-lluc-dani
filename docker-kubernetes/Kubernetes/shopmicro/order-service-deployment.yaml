@@ -9,7 +9,7 @@ metadata:
   name: order-service
   namespace: shopmicro3
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: order-service

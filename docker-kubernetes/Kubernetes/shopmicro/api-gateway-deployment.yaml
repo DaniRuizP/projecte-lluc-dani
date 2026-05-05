@@ -9,7 +9,7 @@ metadata:
   name: api-gateway
   namespace: shopmicro3
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: api-gateway
