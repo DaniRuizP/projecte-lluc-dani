@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-db
+  namespace: shopmicro3
+spec:
+  selector:
+    io.kompose.service: shop-db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
