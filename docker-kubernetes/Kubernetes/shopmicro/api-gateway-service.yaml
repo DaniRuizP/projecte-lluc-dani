@@ -9,12 +9,15 @@ metadata:
   name: api-gateway
   namespace: shopmicro3
 spec:
+  type: NodePort
+  selector:
+    io.kompose.service: api-gateway
   ports:
     - name: "80"
       port: 80
       targetPort: 80
+      nodePort: 30080
     - name: "443"
       port: 443
       targetPort: 443
-  selector:
-    io.kompose.service: api-gateway
+      nodePort: 30443
