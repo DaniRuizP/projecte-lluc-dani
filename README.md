@@ -1,4 +1,4 @@
-# 🚀 M0379 - Projecte Intermodular ASIX
+# M0379 - Projecte Intermodular ASIX
 
 **Autors:** Lluc Sánchez i Dani Ruiz  
 **Cicle:** 2n ASIX (Administració de Sistemes Informàtics en Xarxa)  
@@ -7,7 +7,7 @@
 
 ---
 
-## 📖 Introducció
+## Introducció
 
 Aquest repositori conté tota la documentació, el codi (playbooks, fitxers yaml, scripts, dockerfiles) i els esquemes del nostre **Projecte Intermodular de final de cicle**. 
 
@@ -17,17 +17,17 @@ L'objectiu principal ha estat dissenyar, desplegar, automatitzar i assegurar una
 
 Hem partit d'un entorn físic limitat (portàtils amb 16 GB de RAM) i hem fet ús de la **virtualització niuada (Nested Virtualization)** per aixecar una xarxa complexa de servidors. L'arquitectura inclou:
 
-- ✅ **Emmagatzematge centralitzat** amb redundància (TrueNAS + ZFS)
-- ✅ **Hipervisors** per gestionar VMs (Proxmox)
-- ✅ **Contenidors** per a escalabilitat (Docker → Kubernetes)
-- ✅ **Automatització** per eliminar errades manuals (Ansible)
-- ✅ **Seguretat** per detectar i prevenir amenaces (pfSense + Suricata)
+-  **Emmagatzematge centralitzat** amb redundància (TrueNAS + ZFS)
+-  **Hipervisors** per gestionar VMs (Proxmox)
+-  **Contenidors** per a escalabilitat (Docker → Kubernetes)
+-  **Automatització** per eliminar errades manuals (Ansible)
+-  **Seguretat** per detectar i prevenir amenaces (pfSense + Suricata)
 
 ---
 
-## 🗂️ Miniprojectes
+##  Miniprojectes
 
-### 1. 🖥️ [Virtualització - Proxmox i TrueNAS](./virtualització/README.md)
+### 1. [Virtualització - Proxmox i TrueNAS](./virtualització)
 
 **Objectiu:** Crear entorn virtualitzat amb hipervisor i storage centralitzat
 
@@ -43,13 +43,9 @@ Hem partit d'un entorn físic limitat (portàtils amb 16 GB de RAM) i hem fet ú
 - VirtualBox (virtualització física)
 - NFS i iSCSI (protocoles de storage)
 
-**Temps estimat:** 4-6 hores
-
-[📖 Llegir documentació completa](./virtualització/README.md)
-
 ---
 
-### 2. 🐳 [Docker & Kubernetes - ShopMicro E-commerce](./docker-kubernetes/README.md)
+### 2. [Docker & Kubernetes - ShopMicro E-commerce](./docker-kubernetes)
 
 **Objectiu:** Desplegar plataforma e-commerce escalable amb microserveis
 
@@ -78,13 +74,9 @@ Hem partit d'un entorn físic limitat (portàtils amb 16 GB de RAM) i hem fet ú
 - MySQL, Redis, RabbitMQ
 - Nginx (API Gateway)
 
-**Temps estimat:** 6-8 hores per fase
-
-[📖 Llegir documentació completa](./docker-kubernetes/README.md)
-
 ---
 
-### 3. 🤖 [Automatització - Ansible](./automatitzacio-configuracio/README.md)
+### 3. [Automatització - Ansible](./automatitzacio-configuracio)
 
 **Objectiu:** Automatitzar configuració de servidors de forma centralitzada
 
@@ -108,13 +100,9 @@ Hem partit d'un entorn físic limitat (portàtils amb 16 GB de RAM) i hem fet ú
 - Jinja2 (templating)
 - SSH (remote execution)
 
-**Temps estimat:** 2-3 hores
-
-[📖 Llegir documentació completa](./automatitzacio-configuracio/README.md)
-
 ---
 
-### 4. 🛡️ [IDS/IPS - pfSense + Suricata](./IDS-IPS/README.md)
+### 4. [IDS/IPS - pfSense + Suricata](./IDS-IPS)
 
 **Objectiu:** Detectar i prevenir amenaces en la xarxa
 
@@ -144,59 +132,9 @@ Hem partit d'un entorn físic limitat (portàtils amb 16 GB de RAM) i hem fet ú
 - GeoIP Blocking
 - pfBlockerNG
 
-**Temps estimat:** 3-4 hores
-
-[📖 Llegir documentació completa](./IDS-IPS/README.md)
-
 ---
 
-## 📊 Resum de la Infraestructura
-
-### Arquitectura Global
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                  Infraestructura Completa               │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  ┌──────────────────────────────────────────────┐      │
-│  │  pfSense + Suricata (Seguretat)              │      │
-│  │  🛡️ IDS/IPS, Firewall                        │      │
-│  └─────────────────┬──────────────────────────┘      │
-│                    │                                 │
-│        ┌───────────┴──────────────┐                │
-│        │                          │                │
-│    ┌───▼───────────┐      ┌──────▼────────┐      │
-│    │ Proxmox VE    │      │  Ubuntu Server│      │
-│    │ (Hipervisor)  │      │  + Ansible    │      │
-│    │               │      │  (Automatitz) │      │
-│    └────┬──────────┘      └───────────────┘      │
-│         │                                        │
-│    ┌────▼──────────────┐                         │
-│    │  TrueNAS          │                         │
-│    │  (Storage: NFS)   │                         │
-│    └────┬──────────────┘                         │
-│         │                                        │
-│  ┌──────▼──────────────────────────────────┐    │
-│  │  Docker Swarm / Kubernetes (k3s)        │    │
-│  │  ShopMicro: Frontend + Microserveis     │    │
-│  │  MySQL, Redis, RabbitMQ                 │    │
-│  └──────────────────────────────────────────┘    │
-│                                                   │
-└─────────────────────────────────────────────────────┘
-```
-
-### Xarxes
-
-- **WAN (Internet):** 10.0.2.0/24 DHCP
-- **Management (Host-Only):** 192.168.10.0/24 - **Accés remot**
-- **Docker Network:** 10.0.50.0/24 - **Comunicació entre contenidors**
-- **NFS Storage:** 10.0.30.0/24 - **Emmagatzematge compartit**
-- **iSCSI Storage:** 10.0.40.0/24 - **Volums de blocs**
-
----
-
-## 🛠️ Stack Tecnològic
+## Stack Tecnològic
 
 ### Infraestructura Base
 - **Oracle VirtualBox** - Virtualització del host
@@ -238,7 +176,7 @@ Hem partit d'un entorn físic limitat (portàtils amb 16 GB de RAM) i hem fet ú
 
 ---
 
-## 📁 Estructura de Carpetes
+## Estructura de Carpetes
 
 ```
 projecte-lluc-dani/
@@ -297,21 +235,9 @@ projecte-lluc-dani/
 
 ---
 
-## 🚀 Com Fer Ús d'aquest Repositori
+## Com Fer Ús d'aquest Repositori
 
-### 1. Explorar Miniprojectes
-
-Cada miniprojecte té la seva **documentació completa** en format README:
-
-```bash
-# Accedir a documentació específica
-cd virtualització && cat README.md
-cd docker-kubernetes && cat README.md
-cd automatitzacio-configuracio && cat README.md
-cd IDS-IPS && cat README.md
-```
-
-### 2. Descarregar PDFs de Referència
+### 1. Descarregar PDFs de Referència
 
 Cada carpeta conté la documentació oficial en PDF:
 
@@ -320,13 +246,13 @@ Cada carpeta conté la documentació oficial en PDF:
 - [Automatització PDF](./automatitzacio-configuracio/documentació/Annex%203%20-%20Documentació%20Automatització%20de%20la%20Configuració%20-%20LlucDani.pdf)
 - [IDS-IPS PDF](./IDS-IPS/Annex%204%20-%20Documentació%20Sistema%20de%20Detecció%20i_o%20Prevenció%20d'Intrusions%20-%20LlucDani.pdf)
 
-### 3. Replicar la Infraestructura
+### 2. Replicar la Infraestructura
 
 Seguir els passos documentats en cada miniprojecte per recrear l'entorn complet.
 
 ---
 
-## 📚 Documents de Referència
+## Documents de Referència
 
 ### Documentació de Projecte
 - [Annex 1: Virtualització](./virtualització/documentació/)
@@ -345,22 +271,22 @@ Seguir els passos documentats en cada miniprojecte per recrear l'entorn complet.
 
 ---
 
-## 📊 Estadístiques del Projecte
+## Estadístiques del Projecte
 
 | Métrica | Valor |
 |---------|-------|
-| **Miniprojectes** | 4 |
-| **Documentació (pàgines)** | 150+ |
-| **PDFs** | 4 annexos complets |
+| **Miniprojectes** | 5 |
+| **Documentació (pàgines)** | 200+ |
+| **PDFs** | 5 annexos complets |
 | **Màquines virtuals** | 10+ |
-| **Contenidors Docker** | 7+ |
-| **Playbooks Ansible** | 10+ |
+| **Contenidors Docker** | 9+ |
+| **Pods Kubernetes** | 9+ |
 | **Hores de treball** | 200+ |
 | **Nivell de complexitat** | Avançat |
 
 ---
 
-## ✅ Requisits Completats
+## Requisits Completats
 
 ### ✓ Infraestructura
 - [x] Virtualització niuada (Proxmox + TrueNAS)
@@ -410,16 +336,6 @@ Backend:       Python (Flask)
 
 ---
 
-## 💡 Lessons Learned
-
-1. **Virtualització niuada:** Permet laboratories avançats en equips limitats
-2. **IaC (Infrastructure as Code):** Automatització és essencial per a producció
-3. **Microserveis:** Escalabilitat superior a monolits
-4. **Seguretat:** Multilayer defense (firewall + IDS/IPS)
-5. **DevOps:** Cicle continu de deployment i monitorització
-
----
-
 ## 📝 Nota per als Avaluadors
 
 Totes les decisions de maquinari, arquitectura i configuració estan **documentades i justificades** en els PDFs. La complexitat del projecte s'adapta a un entorn de laboratori amb recursos limitats, però segueix les millors pràctiques empresarials.
@@ -428,7 +344,7 @@ Totes les decisions de maquinari, arquitectura i configuració estan **documenta
 
 ## 🤝 Autors
 
-- **Lluc Sánchez** - Desenvolvimento de Docker/Kubernetes
+- **Lluc Sánchez** - Virtualització i Orquestració
 - **Dani Ruiz** - Automatització i Seguretat
 
 ---
