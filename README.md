@@ -320,7 +320,7 @@ Seguir els passos documentats en cada miniprojecte per recrear l'entorn complet.
 
 ---
 
-## 🎓 Tecnologies Aprenentgudes
+## Tecnologies Aprenentgudes
 
 ```
 DevOps:        Ansible, Docker, Kubernetes, Git
@@ -336,20 +336,20 @@ Backend:       Python (Flask)
 
 ---
 
-## 📝 Nota per als Avaluadors
+## Nota per als Avaluadors
 
 Totes les decisions de maquinari, arquitectura i configuració estan **documentades i justificades** en els PDFs. La complexitat del projecte s'adapta a un entorn de laboratori amb recursos limitats, però segueix les millors pràctiques empresarials.
 
 ---
 
-## 🤝 Autors
+## Autors
 
 - **Lluc Sánchez** - Virtualització i Orquestració
 - **Dani Ruiz** - Automatització i Seguretat
 
 ---
 
-## 📄 Llicència
+## Llicència
 
 Projecte educatiu - I.E.S Sa Palomera (2026)
 
